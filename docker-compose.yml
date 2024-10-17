@@ -1,0 +1,84 @@
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: vehicle_data_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d/
+
+  producer:
+    build: ./vehicle-telemetry-backend/producer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+    ports:
+      - "9090:9090"
+
+  consumer:
+    build: ./vehicle-telemetry-backend/consumer
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: mysecretpassword
+      DB_NAME: vehicle_data_db
+      KAFKA_BROKER: kafka:9092
+
+  backend:
+    build: ./vehicle-telemetry-backend/server
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: mysecretpassword
+      DB_NAME: vehicle_data_db
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./vehicle-telemetry-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_BACKEND_URL: http://backend:8080  # Ensures React can reach the backend
+    volumes:
+      - ./vehicle-telemetry-frontend:/app
+
+volumes:
+  postgres-data:
