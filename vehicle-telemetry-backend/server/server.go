@@ -61,6 +61,8 @@ func main() {
 			rows, err = db.Query("SELECT vehicle_id, speed, speed_unit, battery, longitude, latitude, temperature, created_at FROM vehicle_data")
 		case "high_speed":
 			rows, err = db.Query("SELECT vehicle_id, speed, speed_unit, battery, longitude, latitude, temperature, created_at FROM vehicle_data WHERE speed >= 70")
+		case "low_bat_high_speed":
+			rows, err = db.Query("SELECT vehicle_id, speed, speed_unit, battery, longitude, latitude, temperature, created_at FROM vehicle_data WHERE battery <= 20 AND speed >= 70")
 		default:
 			http.Error(w, "Invalid query type", http.StatusBadRequest)
 			return

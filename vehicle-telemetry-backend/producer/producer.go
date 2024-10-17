@@ -71,7 +71,7 @@ func generateVehicleData() VehicleData {
 		VehicleID:   fmt.Sprintf("EV-%s", uuid.New().String()),
 		Speed:       rand.Float64() * 100,
 		SpeedUnit:   "km/h",
-		Battery:     20 + rand.Float64()*(80),
+		Battery:     0 + rand.Float64()*(100),
 		Longitude:   -180 + rand.Float64()*360,
 		Latitude:    -90 + rand.Float64()*180,
 		Temperature: -10 + rand.Float64()*40,
