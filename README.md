@@ -25,6 +25,7 @@ A real-time vehicle telemetry data streaming service that simulates IoT data fro
 - Parameters: 
     - ```type=all_data```: Retrieves all vehicle data.
     - ```type=high_speed```: Retrieves data of vehicles travelling over 70 km/h.
+    - ```type=low_bat_high_speed```: Retrieves data of vehicles with less than 20% battery and travelling over 70 km/h.
 
 ## Troubleshooting
 Common Issues:
@@ -34,7 +35,6 @@ Common Issues:
 - Consumer shut down: This can happen if the consumer is still waiting for kafka to start up. Simply run the container again and it should work.
 
 ## Future Improvements
-- Add functionality and style to the react frontend
 - Authenitcation for Go API
 - Data Visualization
 
